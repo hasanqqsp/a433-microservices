@@ -1,0 +1,17 @@
+services:
+  item-app:
+    image: ghcr.io/hasanqqsp/item-app:v1 # Gunakan image yang sudah di build
+    ports:
+      - 80:80 # Expose port 80 ke port 80
+    depends_on:
+      - item-db # Tunggu container item-db selesai
+    restart: always # Restart container jika terhenti
+
+  item-db:
+    image: mongo:3 # Gunakan official image mongo versi 3
+    volumes:
+      - app-db:/data/db # Volume untuk menyimpan data secara persisten
+    restart: always # Restart container terhenti
+
+volumes:
+  app-db:  # Volume untuk menyimpan data aplikasi
