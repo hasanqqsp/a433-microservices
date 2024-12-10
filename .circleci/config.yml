@@ -10,7 +10,11 @@ jobs:
       - run:
           name: lint-dockerfile
           command: |
-            curl -sSfL https://raw.githubusercontent.com/hadolint/hadolint/master/install.sh | sh -s -- -b /usr/local/bin
+            git clone https://github.com/hadolint/hadolint \
+              && cd hadolint \
+              && cabal configure \
+              && cabal build \
+              && cabal install
             hadolint Dockerfile
 
       - run:
