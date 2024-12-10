@@ -1,0 +1,37 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.8.1
+
+jobs:
+  lint-dockerfile:
+    executor: docker/hadolint
+    steps:
+      - checkout
+      - docker/hadolint:
+          dockerfiles: ./Dockerfile
+
+  build-app-karsajobs-ui:
+    executor: docker/machine
+    steps:
+      - checkout
+      - docker/check:
+          registry: ghcr.io
+      - docker/build:
+          image: hasanqqsp/karsajobs-ui
+          tag: latest
+          registry: ghcr.io
+      - docker/push:
+          digest-path: /tmp/digest.txt
+          image: hasanqqsp/karsajobs-ui
+          registry: ghcr.io
+          tag: latest
+      - run:
+          command: |
+            echo "Digest is: $(</tmp/digest.txt)"
+
+workflows:
+  lint-and-build-karsajobs-ui:
+    jobs:
+      - lint-dockerfile
+      - build-app-karsajobs-ui
