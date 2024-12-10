@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   lint-dockerfile:
-    executor: docker/machine
+    executor: docker/hadolint
     steps:
       - checkout
       - docker/hadolint:
@@ -23,7 +23,7 @@ jobs:
             - go/test
 
   build-app-karsajobs:
-    executor: docker/docker
+    executor: docker/machine
     steps:
       - checkout
       - docker/check:
