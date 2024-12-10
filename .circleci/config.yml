@@ -41,3 +41,12 @@ jobs:
             docker build -t karsajobs:latest .
             docker tag karsajobs:latest ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
             docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - clone-repo
+      - lint-dockerfile
+      - test-app
+      - build-app-karsajobs
