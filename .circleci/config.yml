@@ -1,39 +1,37 @@
 version: 2.1
+orbs:
+  golang: circleci/go@2.2.0
+  docker: circleci/docker@2.8.1
+
 jobs:
-
   lint-dockerfile:
-    docker:
-      - image: hadolint/hadolint
-
-    steps:
-      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
-      - run:
-          name: lint-dockerfile
-          command: |
-            hadolint Dockerfile
+    jobs:
+      - docker/hadolint:
+          dockerfiles: path/to/Dockerfile
+          executor-class: medium
+          hadolint-tag: 2.2.0-debian
 
   test-app:
-    docker:
-      - image: circleci/golang:1.16
+    executor: golang/default
 
     steps:
-      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+      - checkout
 
       - run:
           name: test-app
           command: go test -v -short --count=1 $(go list ./...)
 
   build-app-karsajobs:
-    docker:
-      - image: circleci/golang:1.16
+    executor: golang/default
 
     steps:
-      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+      - checkout
 
       - run:
           name: Container Login
           command: echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
-      - run :
+
+      - run:
           name: Build and Push Image
           command: |
             docker build -t karsajobs:latest .
@@ -41,7 +39,6 @@ jobs:
             docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
 
 workflows:
-  version: 2
   build:
     jobs:
       - lint-dockerfile
