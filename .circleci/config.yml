@@ -1,29 +1,45 @@
 version: 2.1
 jobs:
-  build:
+  clone-repo:
     docker:
       - image: circleci/golang:1.16
 
     steps:
       - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
 
+  lint-dockerfile:
+    docker:
+      - image: hadolint/hadolint
+
+    steps:
+      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+
+    steps:
       - run:
           name: lint-dockerfile
           command: |
-            git clone https://github.com/hadolint/hadolint \
-              && cd hadolint \
-              && cabal configure \
-              && cabal build \
-              && cabal install
             hadolint Dockerfile
 
+  test-app:
+    docker:
+      - image: circleci/golang:1.16
+
+    steps:
       - run:
           name: test-app
           command: go test -v -short --count=1 $(go list ./...)
 
+  build-app-karsajobs:
+    docker:
+      - image: circleci/golang:1.16
+
+    steps:
       - run:
-          name: build-app-karsajobs
+          name: Container Login
+          command: echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
+      - run :
+          name: Build and Push Image
           command: |
-            echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
+            docker build -t karsajobs:latest .
             docker tag karsajobs:latest ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
             docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
