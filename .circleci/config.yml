@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  golang: circleci/golang@2.2.0
+  golang: circleci/go@2.2.0
   docker: circleci/docker@2.8.1
 
 jobs:
