@@ -1,13 +1,17 @@
 version: 2.1
 orbs:
-  golang: circleci/go@2.2.0
+  golang: circleci/golang@2.2.0
   docker: circleci/docker@2.8.1
 
 jobs:
   lint-dockerfile:
-    jobs:
+    docker:
+      - image: hadolint/hadolint
+
+    steps:
+      - checkout
       - docker/hadolint:
-          dockerfiles: path/to/Dockerfile
+          dockerfiles: ./Dockerfile
           executor-class: medium
           hadolint-tag: 2.2.0-debian
 
