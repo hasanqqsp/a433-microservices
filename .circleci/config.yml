@@ -1,0 +1,25 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.16
+
+    steps:
+      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+
+      - run:
+          name: lint-dockerfile
+          command: |
+            curl -sSfL https://raw.githubusercontent.com/hadolint/hadolint/master/install.sh | sh -s -- -b /usr/local/bin
+            hadolint Dockerfile
+
+      - run:
+          name: test-app
+          command: go test -v -short --count=1 $(go list ./...)
+
+      - run:
+          name: build-app-karsajobs
+          command: |
+            echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
+            docker tag karsajobs:latest ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
+            docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
