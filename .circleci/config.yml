@@ -13,8 +13,6 @@ jobs:
 
     steps:
       - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
-
-    steps:
       - run:
           name: lint-dockerfile
           command: |
