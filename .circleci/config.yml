@@ -29,7 +29,7 @@ jobs:
     steps:
       - run:
           name: Container Login
-          command: echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
+          command: echo "$CR_PAT" | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
       - run :
           name: Build and Push Image
           command: |
