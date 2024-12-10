@@ -24,21 +24,21 @@ jobs:
 
   build-app-karsajobs:
     executor: docker/docker
-        steps:
-          - checkout
-          - docker/check
-          - docker/build:
-              image: hasanqqsp/karsajobs
-              tag: latest
-              registry: ghcr.io
-          - docker/push:
-              digest-path: /tmp/digest.txt
-              image: hasanqqsp/karsajobs
-              registry: ghcr.io
-              tag: latest
-          - run:
-              command: |
-                echo "Digest is: $(</tmp/digest.txt)"
+    steps:
+      - checkout
+      - docker/check
+      - docker/build:
+          image: hasanqqsp/karsajobs
+          tag: latest
+          registry: ghcr.io
+      - docker/push:
+          digest-path: /tmp/digest.txt
+          image: hasanqqsp/karsajobs
+          registry: ghcr.io
+          tag: latest
+      - run:
+          command: |
+            echo "Digest is: $(</tmp/digest.txt)"
 
 workflows:
   build:
