@@ -26,7 +26,8 @@ jobs:
     executor: docker/docker
     steps:
       - checkout
-      - docker/check
+      - docker/check:
+          registry: ghcr.io
       - docker/build:
           image: hasanqqsp/karsajobs
           tag: latest
