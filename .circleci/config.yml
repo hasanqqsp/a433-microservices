@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  golang: circleci/go@2.2.0
+  go: circleci/go@2.2.0
   docker: circleci/docker@2.8.1
 
 jobs:
@@ -12,31 +12,33 @@ jobs:
           dockerfiles: ./Dockerfile
 
   test-app:
-    executor: golang/default
-
+    executor:
+      name: go/default
+      tag: '1.23'
     steps:
       - checkout
-
-      - run:
-          name: test-app
-          command: go test -v -short --count=1 $(go list ./...)
+      - go/with-cache:
+          steps:
+            - go/mod-download
+            - go/test
 
   build-app-karsajobs:
-    executor: golang/default
-
-    steps:
-      - checkout
-
-      - run:
-          name: Container Login
-          command: echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
-
-      - run:
-          name: Build and Push Image
-          command: |
-            docker build -t karsajobs:latest .
-            docker tag karsajobs:latest ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
-            docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
+    executor: docker/docker
+        steps:
+          - checkout
+          - docker/check
+          - docker/build:
+              image: hasanqqsp/karsajobs
+              tag: latest
+              registry: ghcr.io
+          - docker/push:
+              digest-path: /tmp/digest.txt
+              image: hasanqqsp/karsajobs
+              registry: ghcr.io
+              tag: latest
+          - run:
+              command: |
+                echo "Digest is: $(</tmp/digest.txt)"
 
 workflows:
   build:
