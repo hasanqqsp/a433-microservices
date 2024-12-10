@@ -18,6 +18,7 @@ jobs:
 
     steps:
       - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+
       - run:
           name: test-app
           command: go test -v -short --count=1 $(go list ./...)
@@ -27,13 +28,14 @@ jobs:
       - image: circleci/golang:1.16
 
     steps:
+      - run: git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
+
       - run:
           name: Container Login
-          command: echo "$CR_PAT" | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
+          command: echo $CR_PAT | docker login ghcr.io -u $GHCR_NAMESPACE --password-stdin
       - run :
           name: Build and Push Image
           command: |
-            git clone -b karsajobs << pipeline.trigger_parameters.github_app.repo_url >>
             docker build -t karsajobs:latest .
             docker tag karsajobs:latest ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
             docker push ghcr.io/$GHCR_NAMESPACE/karsajobs:latest
@@ -41,6 +43,7 @@ jobs:
 workflows:
   version: 2
   build:
+    jobs:
       - lint-dockerfile
       - test-app
       - build-app-karsajobs
