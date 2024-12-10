@@ -42,8 +42,8 @@ jobs:
             echo "Digest is: $(</tmp/digest.txt)"
 
 workflows:
-  build:
+  lint-test-and-build-karsajobs:
     jobs:
-      - lint-dockerfile
       - test-app
+      - lint-dockerfile
       - build-app-karsajobs
