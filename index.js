@@ -15,6 +15,7 @@ async function connectToQueue() {
     try {
         connection = await amqp.connect(amqpServer);
         channel = await connection.createChannel();
+        
         await channel.assertQueue("order");
         channel.consume("order", data => {
             console.log(`Order received: ${Buffer.from(data.content)}`);
@@ -23,6 +24,8 @@ async function connectToQueue() {
         });
     } catch (ex) {
         console.error(ex);
+        console.log("Failed to connect to the queue. Retrying in 5 seconds...");
+        setTimeout(connectToQueue, 100);
     }
 }
 
